@@ -38,6 +38,7 @@ export const ProductosScreen: React.FC<ProductosScreenProps> = ({
   // Estado del escáner
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [scannerModulesLoaded, setScannerModulesLoaded] = useState(false);
+  const [scannerButtonPressed, setScannerButtonPressed] = useState(false);
   
   // Filtros - AÑADIDO Weight
   const [selectedProductType, setSelectedProductType] = useState<string>('');
@@ -81,16 +82,52 @@ export const ProductosScreen: React.FC<ProductosScreenProps> = ({
   useEffect(() => {
     const loadScannerModules = async () => {
       try {
-        // Cargar los módulos en orden específico
-        await import('@/utils/scanner/scanner-interfaces.js');
-        await import('@/utils/scanner/engines/barcode-detector-engine.js');
-        await import('@/utils/scanner/engines/zxing-wasm-engine.js');
-        await import('@/utils/scanner/engines/html5-qrcode-engine.js');
-        await import('@/utils/scanner/scanner-factory.js');
-        await import('@/utils/scanner/scanner-module.js');
+        console.log('🔄 Iniciando carga de módulos del escáner...');
         
-        console.log('✅ Módulos del escáner cargados');
-        setScannerModulesLoaded(true);
+        // Cargar los módulos desde la carpeta public (servidos estáticamente)
+        const scriptPromises = [
+          '/scanner/scanner-interfaces.js',
+          '/scanner/barcode-detector-engine.js',
+          '/scanner/zxing-wasm-engine.js',
+          '/scanner/html5-qrcode-engine.js',
+          '/scanner/scanner-factory.js',
+          '/scanner/scanner-module.js'
+        ].map(path => {
+          return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = path;
+            script.type = 'text/javascript';
+            script.onload = () => {
+              console.log(`✅ Cargado: ${path}`);
+              resolve(path);
+            };
+            script.onerror = () => {
+              console.warn(`⚠️ Error cargando: ${path}`);
+              resolve(path); // No rechazamos para que continue
+            };
+            document.head.appendChild(script);
+          });
+        });
+        
+        await Promise.all(scriptPromises);
+        
+        // Verificar que los módulos estén disponibles
+        if (window.ScannerModule) {
+          console.log('✅ ScannerModule disponible');
+          setScannerModulesLoaded(true);
+        } else {
+          console.warn('⚠️ ScannerModule no disponible, reintentando...');
+          // Reintentar en 2 segundos
+          setTimeout(() => {
+            if (window.ScannerModule) {
+              console.log('✅ ScannerModule disponible (segundo intento)');
+              setScannerModulesLoaded(true);
+            } else {
+              console.error('❌ ScannerModule no disponible tras reintentos');
+            }
+          }, 2000);
+        }
+        
       } catch (error) {
         console.error('❌ Error cargando módulos del escáner:', error);
         setScannerModulesLoaded(false);
@@ -260,11 +297,15 @@ export const ProductosScreen: React.FC<ProductosScreenProps> = ({
 
   // Funciones del escáner
   const handleScannerOpen = () => {
+    setScannerButtonPressed(true);
+    
     if (scannerModulesLoaded) {
       setIsScannerOpen(true);
+      setScannerButtonPressed(false);
     } else {
       console.error('❌ Módulos del escáner no están cargados');
-      alert('El escáner no está listo. Por favor, recarga la página.');
+      alert('El escáner se está cargando. Por favor, espera unos segundos e inténtalo de nuevo.');
+      setScannerButtonPressed(false);
     }
   };
 
@@ -393,15 +434,15 @@ export const ProductosScreen: React.FC<ProductosScreenProps> = ({
           {/* Botón del Escáner - Discreto */}
           <button
             onClick={handleScannerOpen}
-            disabled={!scannerModulesLoaded}
+            disabled={!scannerModulesLoaded || scannerButtonPressed}
             className={`px-2.5 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
-              !scannerModulesLoaded 
+              !scannerModulesLoaded || scannerButtonPressed
                 ? 'opacity-50 cursor-not-allowed bg-neutral-100 text-neutral-400' 
                 : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
             }`}
             title={scannerModulesLoaded ? 'Escanear código de barras' : 'Escáner cargando...'}
           >
-            |||
+            {scannerButtonPressed ? '⏳' : '|||'}
           </button>
         </div>
 
