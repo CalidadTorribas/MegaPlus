@@ -36,43 +36,72 @@ export const useBarcodeScanner = () => {
         throw new Error('ScannerModule no cargado');
       }
 
+      console.log('🔧 Creando instancia de ScannerModule...');
       scannerRef.current = new window.ScannerModule();
       
       scannerRef.current.setCallbacks({
         onScanSuccess: (code: string, result: any) => {
+          console.log('✅ Escaneo exitoso:', code);
           setLastScan({ code, result, timestamp: Date.now() });
           setIsScanning(false);
           setError(null);
         },
         onScanError: (err: any, message: string) => {
+          console.error('❌ Error en escaneo:', message);
           setError(message);
         },
         onStatusUpdate: (message: string) => {
           setStatus(message);
-          console.log('Scanner status:', message);
+          console.log('📊 Scanner status:', message);
         },
         onPermissionChange: (status: string) => {
+          console.log('🔄 Permission change:', status);
           setScannerStatus(prev => ({...prev, cameraPermissionStatus: status}));
         }
       });
 
-      // Verificar permisos persistentes
+      console.log('🔍 Verificando permisos persistentes...');
       await scannerRef.current.checkPersistedPermissions();
       
-      // Activar cámara
+      console.log('📹 Activando cámara...');
       await scannerRef.current.activateCamera();
       
-      // Inicializar escáner
+      console.log('🎯 Inicializando escáner con elemento:', elementId);
+      
+      // Verificar que el elemento existe y esperar un poco más
+      const element = document.getElementById(elementId);
+      if (!element) {
+        console.warn(`⚠️ Elemento ${elementId} no encontrado, esperando...`);
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        const retryElement = document.getElementById(elementId);
+        if (!retryElement) {
+          throw new Error(`Elemento ${elementId} no encontrado después del reintento`);
+        }
+      }
+      
       await scannerRef.current.initializeScanner(elementId);
       
+      console.log('✅ Escáner inicializado correctamente');
       setIsScanning(true);
       setError(null);
-      setScannerStatus(scannerRef.current.getStatus());
+      
+      // Obtener estado si está disponible
+      if (scannerRef.current.getStatus) {
+        setScannerStatus(scannerRef.current.getStatus());
+      }
       
     } catch (err: any) {
-      console.error('Error inicializando escáner:', err);
-      setError(scannerRef.current?.getErrorMessage(err) || err.message);
+      console.error('❌ Error inicializando escáner:', err);
+      const errorMessage = scannerRef.current?.getErrorMessage(err) || err.message;
+      setError(errorMessage);
       setIsScanning(false);
+      
+      // Si es un error de cámara no disponible, no es crítico
+      if (errorMessage.includes('No se detectó cámara') || 
+          errorMessage.includes('DESKTOP_NO_CAMERA')) {
+        console.log('ℹ️ Error esperado en dispositivo sin cámara');
+      }
     }
   }, []);
 

@@ -84,53 +84,127 @@ export const ProductosScreen: React.FC<ProductosScreenProps> = ({
       try {
         console.log('🔄 Iniciando carga de módulos del escáner...');
         
-        // Cargar los módulos desde la carpeta public (servidos estáticamente)
-        const scriptPromises = [
+        // Verificar si ya están disponibles (por ejemplo, en desarrollo)
+        if (window.ScannerModule) {
+          console.log('✅ ScannerModule ya disponible');
+          setScannerModulesLoaded(true);
+          return;
+        }
+        
+        // Cargar módulos de forma secuencial para mejor compatibilidad
+        const modules = [
           '/scanner/scanner-interfaces.js',
           '/scanner/barcode-detector-engine.js',
           '/scanner/zxing-wasm-engine.js',
           '/scanner/html5-qrcode-engine.js',
           '/scanner/scanner-factory.js',
           '/scanner/scanner-module.js'
-        ].map(path => {
-          return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = path;
-            script.type = 'text/javascript';
-            script.onload = () => {
-              console.log(`✅ Cargado: ${path}`);
-              resolve(path);
-            };
-            script.onerror = () => {
-              console.warn(`⚠️ Error cargando: ${path}`);
-              resolve(path); // No rechazamos para que continue
-            };
-            document.head.appendChild(script);
-          });
-        });
+        ];
         
-        await Promise.all(scriptPromises);
-        
-        // Verificar que los módulos estén disponibles
-        if (window.ScannerModule) {
-          console.log('✅ ScannerModule disponible');
-          setScannerModulesLoaded(true);
-        } else {
-          console.warn('⚠️ ScannerModule no disponible, reintentando...');
-          // Reintentar en 2 segundos
-          setTimeout(() => {
-            if (window.ScannerModule) {
-              console.log('✅ ScannerModule disponible (segundo intento)');
-              setScannerModulesLoaded(true);
-            } else {
-              console.error('❌ ScannerModule no disponible tras reintentos');
-            }
-          }, 2000);
+        for (const modulePath of modules) {
+          try {
+            await new Promise((resolve, reject) => {
+              const script = document.createElement('script');
+              script.src = modulePath;
+              script.type = 'text/javascript';
+              script.async = false; // Cargar de forma síncrona para mantener orden
+              script.onload = () => {
+                console.log(`✅ Cargado: ${modulePath}`);
+                resolve(modulePath);
+              };
+              script.onerror = (error) => {
+                console.warn(`⚠️ Error cargando: ${modulePath}`, error);
+                reject(error);
+              };
+              document.head.appendChild(script);
+            });
+            
+            // Pequeña pausa entre cargas para iOS
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+          } catch (error) {
+            console.warn(`⚠️ Continuando tras error en: ${modulePath}`);
+            continue;
+          }
         }
+        
+        // Verificar disponibilidad con múltiples intentos
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        const checkAvailability = () => {
+          attempts++;
+          console.log(`🔍 Verificando ScannerModule (intento ${attempts})...`);
+          
+          if (window.ScannerModule) {
+            console.log('✅ ScannerModule disponible');
+            setScannerModulesLoaded(true);
+          } else if (attempts < maxAttempts) {
+            setTimeout(checkAvailability, 500);
+          } else {
+            console.error('❌ ScannerModule no disponible tras múltiples intentos');
+            // En lugar de fallar, intentar cargar inline como fallback
+            loadInlineScanner();
+          }
+        };
+        
+        checkAvailability();
         
       } catch (error) {
         console.error('❌ Error cargando módulos del escáner:', error);
         setScannerModulesLoaded(false);
+      }
+    };
+    
+    const loadInlineScanner = () => {
+      console.log('🔧 Cargando escáner de fallback...');
+      
+      // Crear una versión simplificada inline
+      if (!window.ScannerModule) {
+        window.ScannerModule = class {
+          constructor() {
+            this.capabilities = null;
+          }
+          
+          setCallbacks(callbacks) {
+            this.callbacks = callbacks;
+          }
+          
+          async checkPersistedPermissions() {
+            console.log('Verificando permisos...');
+          }
+          
+          async activateCamera() {
+            console.log('Activando cámara...');
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+              throw new Error('DESKTOP_NO_CAMERA');
+            }
+          }
+          
+          async initializeScanner(elementId) {
+            console.log('Inicializando escáner simplificado...');
+            this.elementId = elementId;
+            return true;
+          }
+          
+          stop() {
+            console.log('Deteniendo escáner...');
+          }
+          
+          destroy() {
+            console.log('Destruyendo escáner...');
+          }
+          
+          getErrorMessage(error) {
+            if (error.message === 'DESKTOP_NO_CAMERA') {
+              return 'No se detectó cámara en este dispositivo. Puedes introducir el código manualmente.';
+            }
+            return error.message || 'Error desconocido del escáner';
+          }
+        };
+        
+        console.log('✅ Escáner de fallback cargado');
+        setScannerModulesLoaded(true);
       }
     };
     

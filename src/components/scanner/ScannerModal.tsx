@@ -65,15 +65,19 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({
     if (isOpen && !isScanning && !error) {
       const timer = setTimeout(async () => {
         try {
+          console.log('🚀 Iniciando escáner en modal...');
           await initializeScanner('scanner-video');
         } catch (err) {
-          console.error('Error al iniciar escáner:', err);
+          console.error('❌ Error al iniciar escáner:', err);
+          if (onScanError) {
+            onScanError(err as Error, 'Error al inicializar el escáner');
+          }
         }
-      }, 300); // Pequeño delay para que el DOM esté listo
+      }, 500); // Mayor delay para Android
       
       return () => clearTimeout(timer);
     }
-  }, [isOpen, isScanning, error, initializeScanner]);
+  }, [isOpen, isScanning, error, initializeScanner, onScanError]);
 
   // Efecto para cleanup cuando se cierra
   useEffect(() => {
