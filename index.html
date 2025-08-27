@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    
+    <!-- ===== ICONOS Y FAVICON ===== -->
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="apple-touch-icon" href="/logo.svg" />
+    
+    <!-- ===== META TAGS BÁSICOS ===== -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#4c8b2c" />
+    <meta name="description" content="Mega+ - Sistema empresarial moderno para gestión integral de productos, clientes y materiales" />
+    
+    <!-- ===== PWA META TAGS ===== -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Mega+" />
+    <meta name="application-name" content="Mega+" />
+    <meta name="msapplication-TileColor" content="#4c8b2c" />
+    
+    <!-- ===== PWA MANIFEST ===== -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- ===== PERFORMANCE FONTS ===== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- ===== SEO MEJORADO ===== -->
+    <meta name="author" content="Mega+ Team" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="keywords" content="sistema empresarial, gestión productos, inventario, ERP, Mega Plus" />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Mega+ | Sistema Empresarial" />
+    <meta property="og:description" content="Sistema empresarial moderno para gestión integral" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/logo.svg" />
+    
+    <title>Mega+ | Sistema Empresarial</title>
+    
+    <!-- ===== ESTILOS CRÍTICOS ===== -->
+    <style>
+      /* Reset básico */
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+      
+      html, body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+      }
+      
+      /* Variables CSS para consistencia */
+      :root {
+        --color-primary: #4c8b2c;
+        --color-secondary: #5e3326;
+        --color-neutral-50: #fafafa;
+        --color-neutral-100: #f5f5f5;
+        --color-neutral-600: #525252;
+      }
+      
+      /* Loader inicial minimalista */
+      .mega-initial-loader {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: var(--color-primary);
+        font-family: inherit;
+        z-index: 9999;
+      }
+      
+      .mega-spinner {
+        width: 32px;
+        height: 32px;
+        margin-bottom: 12px;
+        animation: spin 2s linear infinite;
+      }
+      
+      .mega-text {
+        font-size: 14px;
+        color: var(--color-neutral-600);
+        font-weight: 500;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      /* Ocultar loader cuando React carga */
+      #root:not(:empty) .mega-initial-loader {
+        display: none;
+      }
+      
+      /* Prevenir zoom en iOS */
+      input, select, textarea {
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  
+  <body>
+    <div id="root">
+      <!-- Loader que aparece antes de que React cargue -->
+      <div class="mega-initial-loader">
+        <svg class="mega-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+        <div class="mega-text">Iniciando Mega+...</div>
+      </div>
+    </div>
+    
+    <script type="module" src="/src/main.tsx"></script>
+    
+    <script>
+      // PWA Service Worker
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+      
+      // PWA Install Prompt
+      let deferredPrompt;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+      });
+      
+      // Logging
+      console.log('🚀 Mega+ System - Initializing...');
+    </script>
+  </body>
+</html>

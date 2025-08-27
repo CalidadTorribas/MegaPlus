@@ -1,0 +1,313 @@
+/**
+ * Global CSS Styles - Mega+
+ * 
+ * Estilos globales y configuración de Tailwind CSS
+ * Incluye reset, base styles y utilidades personalizadas
+ */
+
+/* Importar fuente Inter desde Google Fonts PRIMERO */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+/* Importar Tailwind CSS DESPUÉS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =================================
+   LAYER BASE - Estilos fundamentales
+   ================================= */
+@layer base {
+  /* Variables CSS personalizadas para temas */
+  :root {
+    /* Colores corporativos */
+    --color-brand-brown: #5e3326;
+    --color-brand-green: #4c8b2c;
+    
+    /* Fondos para logo blanco */
+    --color-logo-bg-primary: #4c8b2c;
+    --color-logo-bg-secondary: #5e3326;
+    --color-logo-bg-gradient: linear-gradient(135deg, #4c8b2c 0%, #5e3326 100%);
+    
+    /* Espaciado base */
+    --spacing-base: 0.5rem; /* 8px */
+    
+    /* Tipografía */
+    --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  
+  /* Reset y configuración base del documento */
+  html {
+    @apply antialiased scroll-smooth;
+    font-family: var(--font-family-primary);
+  }
+  
+  body {
+    @apply bg-white text-neutral-900 font-normal leading-normal;
+    @apply min-h-screen overflow-x-hidden;
+    
+    /* Mejorar rendering de texto */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  /* Configuración para modo oscuro */
+  .dark body {
+    @apply bg-neutral-900 text-neutral-100;
+  }
+  
+  /* Reset de elementos específicos */
+  * {
+    @apply border-neutral-200;
+  }
+  
+  .dark * {
+    @apply border-neutral-800;
+  }
+}
+
+/* =================================
+   LAYER COMPONENTS - Componentes reutilizables
+   ================================= */
+@layer components {
+  /* Contenedor principal responsive */
+  .container-app {
+    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  /* Fondos para logo blanco - CRÍTICO para la aplicación */
+  .logo-bg-primary {
+    background: var(--color-logo-bg-primary);
+  }
+  
+  .logo-bg-secondary {
+    background: var(--color-logo-bg-secondary);
+  }
+  
+  .logo-bg-gradient {
+    background: var(--color-logo-bg-gradient);
+  }
+  
+  .logo-bg-splash {
+    background: linear-gradient(45deg, #4c8b2c 0%, #5e3326 50%, #3d6f23 100%);
+  }
+  
+  /* Gradientes corporativos como clases */
+  .gradient-brand {
+    @apply bg-gradient-brand;
+  }
+  
+  .gradient-brand-reverse {
+    @apply bg-gradient-brand-reverse;
+  }
+  
+  .gradient-primary {
+    @apply bg-gradient-primary;
+  }
+  
+  .gradient-secondary {
+    @apply bg-gradient-secondary;
+  }
+  
+  .gradient-splash {
+    @apply bg-gradient-splash;
+  }
+  
+  /* Estilos para texto corporativo */
+  .text-brand-brown {
+    color: var(--color-brand-brown);
+  }
+  
+  .text-brand-green {
+    color: var(--color-brand-green);
+  }
+  
+  /* Clases para animaciones específicas de la app */
+  .animate-logo-entrance {
+    animation: logoEntrance 1s ease-out forwards;
+  }
+  
+  .animate-text-entrance {
+    animation: textEntrance 1s ease-out 0.3s forwards;
+    opacity: 0;
+  }
+  
+  /* Clase para centrado perfecto (splash screen) */
+  .center-absolute {
+    @apply absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2;
+  }
+  
+  /* Overlay para modales y splash */
+  .overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-modal;
+  }
+  
+  /* Estilos para formularios mejorados */
+  .form-field {
+    @apply space-y-1.5;
+  }
+  
+  .form-input {
+    @apply w-full px-3 py-2.5 border border-neutral-300 rounded-lg;
+    @apply focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+    @apply transition-colors duration-200;
+    @apply bg-white text-neutral-900 placeholder-neutral-500;
+  }
+  
+  .form-label {
+    @apply block text-sm font-medium text-neutral-700;
+  }
+  
+  .form-error {
+    @apply text-sm text-red-600;
+  }
+}
+
+/* =================================
+   LAYER UTILITIES - Utilidades personalizadas
+   ================================= */
+@layer utilities {
+  /* Utilidades para espaciado preciso */
+  .space-y-safe {
+    @apply space-y-4 sm:space-y-6;
+  }
+  
+  .space-x-safe {
+    @apply space-x-4 sm:space-x-6;
+  }
+  
+  /* Utilidades para texto responsive */
+  .text-responsive-xs {
+    @apply text-xs sm:text-sm;
+  }
+  
+  .text-responsive-sm {
+    @apply text-sm sm:text-base;
+  }
+  
+  .text-responsive-base {
+    @apply text-base sm:text-lg;
+  }
+  
+  .text-responsive-lg {
+    @apply text-lg sm:text-xl;
+  }
+  
+  .text-responsive-xl {
+    @apply text-xl sm:text-2xl;
+  }
+  
+  /* Utilidad para ocultar scrollbar pero mantener funcionalidad */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Utilidades para touch targets mínimos */
+  .touch-target {
+    @apply min-h-[48px] min-w-[48px];
+  }
+  
+  /* Utilidades para hover en dispositivos que lo soportan */
+  .hover-lift {
+    @apply transition-transform duration-200 hover:scale-105;
+  }
+  
+  .hover-glow {
+    @apply transition-shadow duration-200 hover:shadow-lg;
+  }
+}
+
+/* =================================
+   ANIMACIONES PERSONALIZADAS
+   ================================= */
+@keyframes logoEntrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.05) translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes textEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =================================
+   RESPONSIVE DESIGN HELPERS
+   ================================= */
+
+/* Ocultar elementos en móvil */
+.mobile-hidden {
+  @apply hidden sm:block;
+}
+
+/* Mostrar solo en móvil */
+.mobile-only {
+  @apply block sm:hidden;
+}
+
+/* Ocultar elementos en desktop */
+.desktop-hidden {
+  @apply block lg:hidden;
+}
+
+/* Mostrar solo en desktop */
+.desktop-only {
+  @apply hidden lg:block;
+}
+
+/* =================================
+   PWA SPECIFIC STYLES
+   ================================= */
+
+/* Estilos para cuando la app se ejecuta como PWA standalone */
+@media (display-mode: standalone) {
+  body {
+    /* Ajustes específicos para PWA */
+    @apply select-none;
+  }
+  
+  /* Evitar el bounce en iOS PWA */
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  #root {
+    height: 100%;
+    overflow: auto;
+  }
+}
+
+/* =================================
+   PRINT STYLES
+   ================================= */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    font-size: 12pt;
+    line-height: 1.4;
+  }
+}

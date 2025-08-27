@@ -1,0 +1,19 @@
+{
+  "name": "Mega+",
+  "short_name": "Mega+",
+  "description": "Sistema empresarial moderno",
+  "theme_color": "#4c8b2c",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

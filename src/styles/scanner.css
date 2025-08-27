@@ -1,0 +1,537 @@
+/* =================================================================
+   Utility Classes
+   ================================================================= */
+
+/* Hide scrollbar but allow scrolling */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari and Opera */
+}
+
+/* =================================================================
+   Scanner Modal Styles
+   ================================================================= */
+
+.scanner-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+}
+
+.scanner-modal {
+  background: white;
+  border-radius: 16px;
+  max-width: 480px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: scanner-modal-enter 0.3s ease-out;
+}
+
+@keyframes scanner-modal-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Modal Header */
+.scanner-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.scanner-modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.25rem 0;
+}
+
+.scanner-modal-description {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.scanner-modal-close {
+  padding: 0.5rem;
+  margin: -0.5rem -0.5rem -0.5rem 0;
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.scanner-modal-close:hover {
+  color: #374151;
+  background: #f3f4f6;
+}
+
+/* Scanner Container */
+.scanner-container {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  background: #000;
+  overflow: hidden;
+}
+
+.scanner-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scanner-video.hidden {
+  display: none;
+}
+
+/* Camera Activation Screen */
+.camera-activation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: #f8f9fa;
+}
+
+.camera-activation-content {
+  text-align: center;
+  padding: 2rem;
+  max-width: 300px;
+}
+
+.camera-activation-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.camera-activation-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+.camera-activation-description {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Scanner Target Overlay */
+.scanner-target {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.scanner-frame {
+  position: relative;
+  width: 280px;
+  height: 180px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4);
+}
+
+.scanner-corners::before,
+.scanner-corners::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border: 3px solid #10b981;
+}
+
+.scanner-corners::before {
+  top: -3px;
+  left: -3px;
+  border-right: none;
+  border-bottom: none;
+  border-top-left-radius: 12px;
+}
+
+.scanner-corners::after {
+  bottom: -3px;
+  right: -3px;
+  border-left: none;
+  border-top: none;
+  border-bottom-right-radius: 12px;
+}
+
+.scanner-frame::before,
+.scanner-frame::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border: 3px solid #10b981;
+}
+
+.scanner-frame::before {
+  top: -3px;
+  right: -3px;
+  border-left: none;
+  border-bottom: none;
+  border-top-right-radius: 12px;
+}
+
+.scanner-frame::after {
+  bottom: -3px;
+  left: -3px;
+  border-right: none;
+  border-top: none;
+  border-bottom-left-radius: 12px;
+}
+
+.scanner-line {
+  position: absolute;
+  top: 50%;
+  left: 8px;
+  right: 8px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #10b981, transparent);
+  animation: scanLine 2s infinite ease-in-out;
+  border-radius: 1px;
+}
+
+@keyframes scanLine {
+  0% { 
+    transform: translateY(-85px);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% { 
+    transform: translateY(85px);
+    opacity: 0;
+  }
+}
+
+/* Status Messages */
+.scanner-status {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.scanner-error {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  right: 1rem;
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.engine-info {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(59, 130, 246, 0.9);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+/* Manual Input Section */
+.manual-input-section {
+  padding: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.manual-input-label {
+  font-size: 0.875rem;
+  color: #374151;
+  margin: 0 0 0.75rem 0;
+  text-align: center;
+}
+
+.manual-form {
+  width: 100%;
+}
+
+.manual-input-group {
+  display: flex;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.manual-input-field {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s;
+  background: white;
+}
+
+.manual-input-field:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.manual-input-field::placeholder {
+  color: #9ca3af;
+}
+
+.manual-submit-btn {
+  padding: 0.75rem 1.5rem;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.manual-submit-btn:hover:not(:disabled) {
+  background: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.25);
+}
+
+.manual-submit-btn:active {
+  transform: translateY(0);
+}
+
+.manual-submit-btn:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Modal Footer */
+.scanner-modal-footer {
+  padding: 1rem 1.5rem;
+  text-align: center;
+  border-top: 1px solid #e5e7eb;
+}
+
+.scanner-help-text {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* =================================================================
+   Scanner Button Styles (for ProductosScreen)
+   ================================================================= */
+
+.scanner-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.scanner-btn:hover {
+  background: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.scanner-btn:active {
+  transform: translateY(0);
+}
+
+.scanner-btn-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* =================================================================
+   Responsive Design
+   ================================================================= */
+
+@media (max-width: 640px) {
+  .scanner-modal-overlay {
+    padding: 0.5rem;
+  }
+  
+  .scanner-modal {
+    max-height: 95vh;
+  }
+  
+  .scanner-modal-header {
+    padding: 1rem;
+  }
+  
+  .scanner-container {
+    height: 280px;
+  }
+  
+  .scanner-frame {
+    width: 240px;
+    height: 150px;
+  }
+  
+  .manual-input-section {
+    padding: 1rem;
+  }
+  
+  .manual-input-group {
+    flex-direction: column;
+  }
+  
+  .manual-submit-btn {
+    width: 100%;
+    padding: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .scanner-modal-title {
+    font-size: 1.125rem;
+  }
+  
+  .scanner-container {
+    height: 240px;
+  }
+  
+  .scanner-frame {
+    width: 200px;
+    height: 120px;
+  }
+  
+  .camera-activation-content {
+    padding: 1.5rem;
+  }
+  
+  .camera-activation-icon {
+    font-size: 2.5rem;
+  }
+}
+
+/* =================================================================
+   Loading States and Animations
+   ================================================================= */
+
+.scanner-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: #f3f4f6;
+}
+
+.scanner-loading-spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid #e5e7eb;
+  border-top-color: #10b981;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =================================================================
+   Accessibility Improvements
+   ================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .scanner-line {
+    animation: none;
+  }
+  
+  .scanner-loading-spinner {
+    animation: none;
+  }
+  
+  .scanner-modal {
+    animation: none;
+  }
+  
+  .scanner-btn:hover {
+    transform: none;
+  }
+  
+  .manual-submit-btn:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .scanner-frame {
+    border-color: #000;
+  }
+  
+  .scanner-corners::before,
+  .scanner-corners::after,
+  .scanner-frame::before,
+  .scanner-frame::after {
+    border-color: #000;
+  }
+  
+  .scanner-status {
+    background: #000;
+    border: 1px solid #fff;
+  }
+}
