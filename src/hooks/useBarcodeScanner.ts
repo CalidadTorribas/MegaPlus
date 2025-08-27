@@ -28,14 +28,17 @@ export const useBarcodeScanner = () => {
   const [lastScan, setLastScan] = useState<ScanResult | null>(null);
   const [scannerStatus, setScannerStatus] = useState<ScannerStatus>({});
   const [status, setStatus] = useState<string>('');
+  const [debugCallback, setDebugCallback] = useState<((msg: string) => void) | null>(null);
   const scannerRef = useRef<any>(null);
 
   const initializeScanner = useCallback(async (elementId: string) => {
     try {
+      debugCallback?.('🔍 Verificando ScannerModule...');
       if (!window.ScannerModule) {
         throw new Error('ScannerModule no cargado');
       }
 
+      debugCallback?.('🔧 Creando instancia de ScannerModule...');
       console.log('🔧 Creando instancia de ScannerModule...');
       scannerRef.current = new window.ScannerModule();
       
@@ -60,12 +63,15 @@ export const useBarcodeScanner = () => {
         }
       });
 
+      debugCallback?.('🔍 Verificando permisos persistentes...');
       console.log('🔍 Verificando permisos persistentes...');
       await scannerRef.current.checkPersistedPermissions();
       
+      debugCallback?.('📹 Activando cámara...');
       console.log('📹 Activando cámara...');
       await scannerRef.current.activateCamera();
       
+      debugCallback?.('🎯 Inicializando escáner...');
       console.log('🎯 Inicializando escáner con elemento:', elementId);
       
       // Verificar que el elemento existe y esperar un poco más
@@ -82,6 +88,7 @@ export const useBarcodeScanner = () => {
       
       await scannerRef.current.initializeScanner(elementId);
       
+      debugCallback?.('✅ Escáner inicializado correctamente');
       console.log('✅ Escáner inicializado correctamente');
       setIsScanning(true);
       setError(null);
@@ -92,6 +99,7 @@ export const useBarcodeScanner = () => {
       }
       
     } catch (err: any) {
+      debugCallback?.(`❌ Error: ${err.message}`);
       console.error('❌ Error inicializando escáner:', err);
       const errorMessage = scannerRef.current?.getErrorMessage(err) || err.message;
       setError(errorMessage);
@@ -139,6 +147,10 @@ export const useBarcodeScanner = () => {
     return cleanup;
   }, [cleanup]);
 
+  const setDebugCallback = useCallback((callback: ((msg: string) => void) | null) => {
+    setDebugCallback(callback);
+  }, []);
+
   return {
     isScanning,
     error,
@@ -149,6 +161,7 @@ export const useBarcodeScanner = () => {
     stopScanner,
     cleanup,
     getEngineInfo,
-    resetScan
+    resetScan,
+    setDebugCallback
   };
 };

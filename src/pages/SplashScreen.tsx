@@ -124,12 +124,16 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
           </div>
 
           {/* Estados de carga detallados */}
-          <div className="text-center">
+          <div className="text-center space-y-2">
             <p className="text-xs text-neutral-500">
               {progress < 30 && "Conectando con servidor..."}
               {progress >= 30 && progress < 60 && "Cargando configuración..."}
               {progress >= 60 && progress < 90 && "Inicializando interfaz..."}
               {progress >= 90 && "Preparando aplicación..."}
+            </p>
+            {/* Número de versión */}
+            <p className="text-xs text-neutral-400 font-mono">
+              v1.1.0
             </p>
           </div>
         </div>

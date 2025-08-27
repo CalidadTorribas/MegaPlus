@@ -27,6 +27,7 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({
   const videoRef = useRef<HTMLDivElement>(null);
   const [engineInfo, setEngineInfo] = useState<any>(null);
   const [manualCode, setManualCode] = useState('');
+  const [debugLogs, setDebugLogs] = useState<string[]>([]);
   
   const {
     isScanning,
@@ -38,7 +39,8 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({
     stopScanner,
     cleanup,
     getEngineInfo,
-    resetScan
+    resetScan,
+    setDebugCallback
   } = useBarcodeScanner();
 
   // Efecto para manejar resultados de escaneo
@@ -60,14 +62,32 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({
     }
   }, [error, onScanError]);
 
+  // Función para agregar logs de debug
+  const addDebugLog = (message: string) => {
+    setDebugLogs(prev => [...prev.slice(-9), `${new Date().toLocaleTimeString()}: ${message}`]);
+  };
+
+  // Configurar callback de debug al abrir
+  useEffect(() => {
+    if (isOpen) {
+      setDebugCallback(addDebugLog);
+      return () => setDebugCallback(null);
+    }
+  }, [isOpen, setDebugCallback]);
+
   // Efecto para inicializar escáner cuando se abre el modal
   useEffect(() => {
     if (isOpen && !isScanning && !error) {
+      addDebugLog('🚀 Modal abierto, iniciando escáner...');
       const timer = setTimeout(async () => {
         try {
+          addDebugLog('🔧 Llamando a initializeScanner...');
           console.log('🚀 Iniciando escáner en modal...');
           await initializeScanner('scanner-video');
+          addDebugLog('✅ initializeScanner completado');
         } catch (err) {
+          const errorMsg = (err as Error).message;
+          addDebugLog(`❌ Error: ${errorMsg}`);
           console.error('❌ Error al iniciar escáner:', err);
           if (onScanError) {
             onScanError(err as Error, 'Error al inicializar el escáner');
@@ -87,6 +107,7 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({
       resetScan();
       setEngineInfo(null);
       setManualCode('');
+      setDebugLogs([]);
     }
   }, [isOpen, stopScanner, cleanup, resetScan]);
 
@@ -197,6 +218,30 @@ export const ScannerModal: React.FC<ScannerModalProps> = ({
           {engineInfo && (
             <div className="engine-info">
               <small>Motor: {engineInfo.name} ({engineInfo.type})</small>
+            </div>
+          )}
+
+          {/* Debug Logs - Solo mostrar si hay logs */}
+          {debugLogs.length > 0 && (
+            <div className="debug-logs" style={{
+              backgroundColor: '#f3f4f6',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              padding: '8px',
+              margin: '8px 0',
+              fontSize: '12px',
+              fontFamily: 'monospace',
+              maxHeight: '120px',
+              overflowY: 'auto'
+            }}>
+              <div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#374151' }}>
+                🔍 Debug (últimos 10):
+              </div>
+              {debugLogs.map((log, index) => (
+                <div key={index} style={{ margin: '2px 0', color: '#6b7280' }}>
+                  {log}
+                </div>
+              ))}
             </div>
           )}
         </div>
