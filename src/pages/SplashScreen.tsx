@@ -11,6 +11,15 @@
 import React, { useEffect, useState } from 'react';
 import { MobileScreenLayout } from '@/components/templates/MobileScreenLayout';
 
+// Obtener versión del package.json
+const getVersion = () => {
+  try {
+    return import.meta.env.VITE_APP_VERSION || '1.1.0';
+  } catch {
+    return '1.1.0';
+  }
+};
+
 interface SplashScreenProps {
   /** Función que se ejecuta cuando termina la animación */
   onAnimationComplete?: () => void;
@@ -20,7 +29,7 @@ interface SplashScreenProps {
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({
   onAnimationComplete,
-  duration = 3000,
+  duration = 4000, // Aumentado a 4 segundos para ver mejor
 }) => {
   const [progress, setProgress] = useState(0);
   const [showContent, setShowContent] = useState(true);
@@ -133,7 +142,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
             </p>
             {/* Número de versión */}
             <p className="text-xs text-neutral-400 font-mono">
-              v1.1.0
+              v{getVersion()}
             </p>
           </div>
         </div>
