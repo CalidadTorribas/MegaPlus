@@ -28,7 +28,7 @@ export const useBarcodeScanner = () => {
   const [lastScan, setLastScan] = useState<ScanResult | null>(null);
   const [scannerStatus, setScannerStatus] = useState<ScannerStatus>({});
   const [status, setStatus] = useState<string>('');
-  const [debugCallback, setDebugCallback] = useState<((msg: string) => void) | null>(null);
+  const [debugCallback, setDebugCallbackState] = useState<((msg: string) => void) | null>(null);
   const scannerRef = useRef<any>(null);
 
   const initializeScanner = useCallback(async (elementId: string) => {
@@ -148,7 +148,7 @@ export const useBarcodeScanner = () => {
   }, [cleanup]);
 
   const setDebugCallback = useCallback((callback: ((msg: string) => void) | null) => {
-    setDebugCallback(callback);
+    setDebugCallbackState(callback);
   }, []);
 
   return {
