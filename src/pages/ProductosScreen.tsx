@@ -9,7 +9,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { getProducts, Product } from '@/lib/supabase';
 import { AppWithFooterLayout } from '@/components/templates/AppWithFooterLayout';
 import { ProductImage } from '@/components/atoms/ProductImage';
-import ScannerModal from '@/components/scanner/ScannerModal';
+import { SimpleBarcodeScanner } from '@/components/scanner/SimpleBarcodeScanner';
 import '@/styles/scanner.css';
 
 // Tipos para filtros y ordenación
@@ -37,8 +37,6 @@ export const ProductosScreen: React.FC<ProductosScreenProps> = ({
   
   // Estado del escáner
   const [isScannerOpen, setIsScannerOpen] = useState(false);
-  const [scannerModulesLoaded, setScannerModulesLoaded] = useState(false);
-  const [scannerButtonPressed, setScannerButtonPressed] = useState(false);
   
   // Filtros - AÑADIDO Weight
   const [selectedProductType, setSelectedProductType] = useState<string>('');
@@ -78,138 +76,6 @@ export const ProductosScreen: React.FC<ProductosScreenProps> = ({
     fetchProducts();
   }, []);
 
-  // Cargar módulos del escáner al montar
-  useEffect(() => {
-    const loadScannerModules = async () => {
-      try {
-        console.log('🔄 Iniciando carga de módulos del escáner...');
-        
-        // Verificar si ya están disponibles (por ejemplo, en desarrollo)
-        if (window.ScannerModule) {
-          console.log('✅ ScannerModule ya disponible');
-          setScannerModulesLoaded(true);
-          return;
-        }
-        
-        // Cargar módulos de forma secuencial para mejor compatibilidad
-        const modules = [
-          '/scanner/scanner-interfaces.js',
-          '/scanner/barcode-detector-engine.js',
-          '/scanner/zxing-wasm-engine.js',
-          '/scanner/html5-qrcode-engine.js',
-          '/scanner/scanner-factory.js',
-          '/scanner/scanner-module.js'
-        ];
-        
-        for (const modulePath of modules) {
-          try {
-            await new Promise((resolve, reject) => {
-              const script = document.createElement('script');
-              script.src = modulePath;
-              script.type = 'text/javascript';
-              script.async = false; // Cargar de forma síncrona para mantener orden
-              script.onload = () => {
-                console.log(`✅ Cargado: ${modulePath}`);
-                resolve(modulePath);
-              };
-              script.onerror = (error) => {
-                console.warn(`⚠️ Error cargando: ${modulePath}`, error);
-                reject(error);
-              };
-              document.head.appendChild(script);
-            });
-            
-            // Pequeña pausa entre cargas para iOS
-            await new Promise(resolve => setTimeout(resolve, 100));
-            
-          } catch (error) {
-            console.warn(`⚠️ Continuando tras error en: ${modulePath}`);
-            continue;
-          }
-        }
-        
-        // Verificar disponibilidad con múltiples intentos
-        let attempts = 0;
-        const maxAttempts = 10;
-        
-        const checkAvailability = () => {
-          attempts++;
-          console.log(`🔍 Verificando ScannerModule (intento ${attempts})...`);
-          
-          if (window.ScannerModule) {
-            console.log('✅ ScannerModule disponible');
-            setScannerModulesLoaded(true);
-          } else if (attempts < maxAttempts) {
-            setTimeout(checkAvailability, 500);
-          } else {
-            console.error('❌ ScannerModule no disponible tras múltiples intentos');
-            // En lugar de fallar, intentar cargar inline como fallback
-            loadInlineScanner();
-          }
-        };
-        
-        checkAvailability();
-        
-      } catch (error) {
-        console.error('❌ Error cargando módulos del escáner:', error);
-        setScannerModulesLoaded(false);
-      }
-    };
-    
-    const loadInlineScanner = () => {
-      console.log('🔧 Cargando escáner de fallback...');
-      
-      // Crear una versión simplificada inline
-      if (!window.ScannerModule) {
-        window.ScannerModule = class {
-          constructor() {
-            this.capabilities = null;
-          }
-          
-          setCallbacks(callbacks) {
-            this.callbacks = callbacks;
-          }
-          
-          async checkPersistedPermissions() {
-            console.log('Verificando permisos...');
-          }
-          
-          async activateCamera() {
-            console.log('Activando cámara...');
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-              throw new Error('DESKTOP_NO_CAMERA');
-            }
-          }
-          
-          async initializeScanner(elementId) {
-            console.log('Inicializando escáner simplificado...');
-            this.elementId = elementId;
-            return true;
-          }
-          
-          stop() {
-            console.log('Deteniendo escáner...');
-          }
-          
-          destroy() {
-            console.log('Destruyendo escáner...');
-          }
-          
-          getErrorMessage(error) {
-            if (error.message === 'DESKTOP_NO_CAMERA') {
-              return 'No se detectó cámara en este dispositivo. Puedes introducir el código manualmente.';
-            }
-            return error.message || 'Error desconocido del escáner';
-          }
-        };
-        
-        console.log('✅ Escáner de fallback cargado');
-        setScannerModulesLoaded(true);
-      }
-    };
-    
-    loadScannerModules();
-  }, []);
 
   // Productos filtrados y ordenados - SISTEMA ROBUSTO
   const filteredAndSortedProducts = useMemo(() => {
@@ -371,16 +237,7 @@ export const ProductosScreen: React.FC<ProductosScreenProps> = ({
 
   // Funciones del escáner
   const handleScannerOpen = () => {
-    setScannerButtonPressed(true);
-    
-    if (scannerModulesLoaded) {
-      setIsScannerOpen(true);
-      setScannerButtonPressed(false);
-    } else {
-      console.error('❌ Módulos del escáner no están cargados');
-      alert('El escáner se está cargando. Por favor, espera unos segundos e inténtalo de nuevo.');
-      setScannerButtonPressed(false);
-    }
+    setIsScannerOpen(true);
   };
 
   const handleScannerClose = () => {
@@ -508,15 +365,10 @@ export const ProductosScreen: React.FC<ProductosScreenProps> = ({
           {/* Botón del Escáner - Discreto */}
           <button
             onClick={handleScannerOpen}
-            disabled={!scannerModulesLoaded || scannerButtonPressed}
-            className={`px-2.5 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
-              !scannerModulesLoaded || scannerButtonPressed
-                ? 'opacity-50 cursor-not-allowed bg-neutral-100 text-neutral-400' 
-                : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-            }`}
-            title={scannerModulesLoaded ? 'Escanear código de barras' : 'Escáner cargando...'}
+            className="px-2.5 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+            title="Escanear código de barras"
           >
-            {scannerButtonPressed ? '⏳' : '|||'}
+            |||
           </button>
         </div>
 
@@ -725,8 +577,8 @@ export const ProductosScreen: React.FC<ProductosScreenProps> = ({
     >
       {renderContent()}
       
-      {/* Modal del Escáner */}
-      <ScannerModal
+      {/* Scanner Simple */}
+      <SimpleBarcodeScanner
         isOpen={isScannerOpen}
         onClose={handleScannerClose}
         onScanSuccess={handleScanSuccess}
