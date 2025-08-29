@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { ConditionalMobileWrapper } from '@/components/wrappers/ConditionalMobileWrapper';
 
 interface AppWithFooterLayoutProps {
   children: React.ReactNode;
@@ -31,16 +32,7 @@ export const AppWithFooterLayout: React.FC<AppWithFooterLayoutProps> = ({
   backButtonText = "Atrás"
 }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 to-neutral-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div 
-          className="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col"
-          style={{ 
-            height: '800px',
-            minHeight: '800px',
-            maxHeight: '800px'
-          }}
-        >
+    <ConditionalMobileWrapper>
           {/* Contenido principal */}
           <div 
             className="flex-1 overflow-y-auto"
@@ -101,9 +93,7 @@ export const AppWithFooterLayout: React.FC<AppWithFooterLayoutProps> = ({
               </button>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+    </ConditionalMobileWrapper>
   );
 };
 

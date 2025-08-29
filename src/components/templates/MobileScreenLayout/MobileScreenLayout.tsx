@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import { ConditionalMobileWrapper } from '@/components/wrappers/ConditionalMobileWrapper';
 
 export interface HeaderBranding {
   type: 'branding';
@@ -152,16 +153,7 @@ export const MobileScreenLayout: React.FC<MobileScreenLayoutProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 to-neutral-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div 
-          className="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col"
-          style={{ 
-            height: '800px',
-            minHeight: '800px',
-            maxHeight: '800px'
-          }}
-        >
+    <ConditionalMobileWrapper>
           
           {/* Header dinámico */}
           {renderHeader()}
@@ -207,9 +199,6 @@ export const MobileScreenLayout: React.FC<MobileScreenLayoutProps> = ({
             >
             </div>
           )}
-        </div>
-      </div>
-
       {/* Elementos decorativos de fondo */}
       {showBackgroundDecorations && (
         <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
@@ -218,7 +207,7 @@ export const MobileScreenLayout: React.FC<MobileScreenLayoutProps> = ({
           <div className="absolute inset-0 bg-gradient-to-br from-transparent via-primary-50/20 to-transparent" />
         </div>
       )}
-    </div>
+    </ConditionalMobileWrapper>
   );
 };
 

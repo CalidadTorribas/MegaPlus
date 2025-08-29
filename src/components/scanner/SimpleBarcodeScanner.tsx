@@ -28,23 +28,29 @@ export const SimpleBarcodeScanner: React.FC<SimpleScannerProps> = ({
   const [isScanning, setIsScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [manualCode, setManualCode] = useState('');
-  const [logs, setLogs] = useState<string[]>([]);
   const scannerRef = useRef<HTMLDivElement>(null);
 
-  const addLog = (message: string) => {
-    setLogs(prev => [...prev.slice(-7), `${new Date().toLocaleTimeString()}: ${message}`]);
-  };
 
   useEffect(() => {
     if (!isOpen) return;
 
     const initScanner = async () => {
       try {
-        addLog('🚀 Iniciando scanner simple...');
+        // Verificar si hay soporte para mediaDevices
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('CAMERA_NOT_SUPPORTED');
+        }
+
+        // Verificar si hay cámaras disponibles en el dispositivo
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const cameras = devices.filter(device => device.kind === 'videoinput');
+        
+        if (cameras.length === 0) {
+          throw new Error('NO_CAMERA_FOUND');
+        }
         
         // Cargar html5-qrcode desde CDN
         if (!window.Html5Qrcode) {
-          addLog('📦 Cargando html5-qrcode...');
           const script = document.createElement('script');
           script.src = 'https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js';
           document.head.appendChild(script);
@@ -55,14 +61,11 @@ export const SimpleBarcodeScanner: React.FC<SimpleScannerProps> = ({
             setTimeout(() => reject(new Error('Timeout loading html5-qrcode')), 10000);
           });
           
-          addLog('✅ html5-qrcode cargado');
         }
 
-        addLog('🔧 Creando instancia scanner...');
         const html5QrCode = new window.Html5Qrcode("scanner-element");
         setScanner(html5QrCode);
 
-        addLog('🎥 Solicitando permisos cámara...');
         
         const config = {
           fps: 10,
@@ -77,7 +80,12 @@ export const SimpleBarcodeScanner: React.FC<SimpleScannerProps> = ({
           { facingMode: "environment" }, // Cámara trasera
           config,
           (decodedText, decodedResult) => {
-            addLog(`✅ Código detectado: ${decodedText}`);
+            // Detener el scanner inmediatamente después de leer
+            html5QrCode.stop().then(() => {
+              setScanner(null);
+              setIsScanning(false);
+            }).catch(console.error);
+            
             onScanSuccess(decodedText, {
               format: decodedResult.result?.format || 'UNKNOWN',
               engine: 'html5-qrcode-simple',
@@ -93,13 +101,31 @@ export const SimpleBarcodeScanner: React.FC<SimpleScannerProps> = ({
           }
         );
 
-        addLog('✅ Scanner iniciado correctamente');
         setIsScanning(true);
         setError(null);
 
       } catch (err: any) {
-        const errorMsg = err.message || 'Error desconocido';
-        addLog(`❌ Error: ${errorMsg}`);
+        let errorMsg = 'Error desconocido';
+        
+        // Detectar tipos específicos de errores de cámara
+        if (err.message === 'NO_CAMERA_FOUND') {
+          errorMsg = 'No se ha detectado una cámara en este dispositivo';
+        } else if (err.message === 'CAMERA_NOT_SUPPORTED') {
+          errorMsg = 'Tu navegador no soporta acceso a la cámara';
+        } else if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+          errorMsg = 'Acceso a la cámara denegado. Por favor, permite el acceso a la cámara';
+        } else if (err.name === 'NotFoundError') {
+          errorMsg = 'No se encontró ninguna cámara en este dispositivo';
+        } else if (err.name === 'NotReadableError') {
+          errorMsg = 'La cámara está siendo usada por otra aplicación';
+        } else if (err.name === 'OverconstrainedError') {
+          errorMsg = 'La configuración de la cámara no es compatible';
+        } else if (err.message && err.message.includes('load html5-qrcode')) {
+          errorMsg = 'Error al cargar el escáner. Verifica tu conexión a internet';
+        } else if (err.message) {
+          errorMsg = err.message;
+        }
+        
         setError(errorMsg);
         
         if (onScanError) {
@@ -117,7 +143,6 @@ export const SimpleBarcodeScanner: React.FC<SimpleScannerProps> = ({
       }
       setIsScanning(false);
       setError(null);
-      setLogs([]);
     };
   }, [isOpen]);
 
@@ -128,7 +153,6 @@ export const SimpleBarcodeScanner: React.FC<SimpleScannerProps> = ({
     }
     setIsScanning(false);
     setError(null);
-    setLogs([]);
     setManualCode('');
     onClose();
   };
@@ -196,17 +220,6 @@ export const SimpleBarcodeScanner: React.FC<SimpleScannerProps> = ({
             )}
           </div>
 
-          {/* Debug Logs */}
-          {logs.length > 0 && (
-            <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-              <div className="text-xs font-semibold text-gray-700 mb-2">🔍 Debug:</div>
-              {logs.map((log, index) => (
-                <div key={index} className="text-xs text-gray-600 font-mono">
-                  {log}
-                </div>
-              ))}
-            </div>
-          )}
 
           {/* Input Manual */}
           <form onSubmit={handleManualSubmit} className="space-y-3">

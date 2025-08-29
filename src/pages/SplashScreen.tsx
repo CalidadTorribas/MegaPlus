@@ -14,9 +14,9 @@ import { MobileScreenLayout } from '@/components/templates/MobileScreenLayout';
 // Obtener versión del package.json
 const getVersion = () => {
   try {
-    return import.meta.env.VITE_APP_VERSION || '1.1.0';
+    return import.meta.env.VITE_APP_VERSION || '1.2.0';
   } catch {
-    return '1.1.0';
+    return '1.2.0';
   }
 };
 

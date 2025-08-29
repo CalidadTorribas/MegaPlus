@@ -248,6 +248,9 @@ export const ProductosScreen: React.FC<ProductosScreenProps> = ({
     console.log('🎯 Código escaneado:', code);
     console.log('📊 Detalles:', result);
     
+    // Cerrar el modal del escáner inmediatamente para evitar bucles
+    setIsScannerOpen(false);
+    
     // Buscar producto por código de barras
     const foundProduct = products.find(product => 
       product.Barcode && product.Barcode.toString() === code.toString()
@@ -255,18 +258,16 @@ export const ProductosScreen: React.FC<ProductosScreenProps> = ({
 
     if (foundProduct) {
       console.log('✅ Producto encontrado:', foundProduct.Name);
-      // Cerrar el modal del escáner primero
-      setIsScannerOpen(false);
       // Navegar directamente al detalle del producto
       if (onNavigateToProductDetail) {
         onNavigateToProductDetail(foundProduct.id);
       }
     } else {
       console.log('❌ Producto no encontrado con código:', code);
-      // Mostrar mensaje de producto no encontrado
-      alert(`No se encontró ningún producto con el código: ${code}`);
-      // Cerrar el modal del escáner
-      setIsScannerOpen(false);
+      // Usar setTimeout para mostrar el mensaje después de cerrar el modal
+      setTimeout(() => {
+        alert(`No se encontró ningún producto con el código: ${code}`);
+      }, 100);
     }
   };
 

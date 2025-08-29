@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { ConditionalMobileWrapper } from '@/components/wrappers/ConditionalMobileWrapper';
 
 interface HubLayoutProps {
   children: React.ReactNode;
@@ -16,16 +17,7 @@ export const HubLayout: React.FC<HubLayoutProps> = ({
   onExitApp
 }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 to-neutral-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div 
-          className="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col"
-          style={{ 
-            height: '800px',
-            minHeight: '800px',
-            maxHeight: '800px'
-          }}
-        >
+    <ConditionalMobileWrapper>
           
           {/* Header reducido - ajustado para que quepa bien el contenido */}
           <div 
@@ -94,9 +86,7 @@ export const HubLayout: React.FC<HubLayoutProps> = ({
               </button>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+    </ConditionalMobileWrapper>
   );
 };
 
