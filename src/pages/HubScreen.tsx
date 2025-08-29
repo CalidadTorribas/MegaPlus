@@ -8,7 +8,8 @@
  * - Diseño ejecutivo y eficiente
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { ConditionalMobileWrapper } from '@/components/wrappers/ConditionalMobileWrapper';
 
 interface WidgetData {
   id: string;
@@ -59,7 +60,7 @@ const Widget: React.FC<{
       `}
     >
       {/* Icono del widget */}
-      <div className="flex justify-center mb-4 h-6">
+      <div className="flex justify-center mb-3 h-10">
         <div className={`
           w-10 h-10 rounded-xl ${colors.bg} border ${colors.border}
           flex items-center justify-center
@@ -140,6 +141,12 @@ export const HubScreen: React.FC<HubScreenProps> = ({
   // Nuevo estado para el filtro de widgets
   const [widgetFilter, setWidgetFilter] = useState('');
 
+  // Efecto para asegurar que el scroll esté en la parte superior al montar
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.body.scrollTo(0, 0);
+  }, []);
+
   // Filtrado de widgets por nombre o descripción
   const filteredWidgets = visibleWidgets.filter(
     (widget) =>
@@ -158,17 +165,7 @@ export const HubScreen: React.FC<HubScreenProps> = ({
 
   return (
     <>
-      {/* LAYOUT COMPACTO PERSONALIZADO */}
-      <div className="min-h-screen bg-gradient-to-br from-neutral-50 to-neutral-100 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <div 
-            className="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col"
-            style={{ 
-              height: '800px',
-              minHeight: '800px',
-              maxHeight: '800px'
-            }}
-          >
+      <ConditionalMobileWrapper>
             
             {/* HEADER COMPACTO CORPORATIVO */}
             <div 
@@ -265,9 +262,7 @@ export const HubScreen: React.FC<HubScreenProps> = ({
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
+      </ConditionalMobileWrapper>
 
       {/* Notificación */}
       {notification && (
