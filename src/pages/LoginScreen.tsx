@@ -69,7 +69,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     <MobileScreenLayout
       header={{ type: 'branding' }}
       showFooter={true}
-      footerText="¿Necesitas ayuda? Contactar soporte"
+      footerText="© 2025 Mega+."
       showBackgroundDecorations={true}
     >
       {/* Contenido con altura fija para evitar cambios de dimensión */}

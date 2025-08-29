@@ -56,36 +56,43 @@ const Widget: React.FC<{
         touch-target
         group
         w-full h-32
-        flex flex-col
+        flex flex-col justify-center items-center
+        text-center
       `}
     >
-      {/* Icono del widget */}
-      <div className="flex justify-center mb-3 h-10">
+      {/* Icono del widget - Centrado perfectamente */}
+      <div className="flex justify-center items-center mb-2">
         <div className={`
-          w-10 h-10 rounded-xl ${colors.bg} border ${colors.border}
+          w-8 h-8 rounded-lg ${colors.bg} border ${colors.border}
           flex items-center justify-center
           group-hover:scale-110 transition-transform duration-300
           shadow-sm
         `}>
-          <span className={`text-lg font-light ${colors.icon}`}>{icon}</span>
+          <span className={`text-base font-light ${colors.icon}`}>{icon}</span>
         </div>
       </div>
 
-      {/* Contenido del widget */}
-      <div className="text-center flex-1 flex flex-col justify-between">
-        {/* Nombre del widget */}
-        <div className="h-5 flex items-center justify-center mb-3">
-          <h3 className={`text-sm font-semibold ${colors.title} leading-tight truncate max-w-full`}>
-            {name}
-          </h3>
-        </div>
+      {/* Nombre del widget - Centrado y con espacio fijo */}
+      <div className="mb-2">
+        <h3 className={`text-sm font-semibold ${colors.title} leading-tight truncate max-w-full`}>
+          {name}
+        </h3>
+      </div>
 
-        {/* Descripción del widget */}
-        <div className="h-8 flex items-center justify-center">
-          <p className={`text-xs ${colors.description} leading-relaxed text-center line-clamp-2 max-w-full`}>
-            {description}
-          </p>
-        </div>
+      {/* Descripción del widget - 2 líneas máximo, contenida */}
+      <div className="flex-1 flex items-center justify-center max-w-full">
+        <p className={`
+          text-xs ${colors.description} leading-tight text-center
+          overflow-hidden break-words
+          max-h-8 
+          line-clamp-2
+        `} style={{ 
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical'
+        }}>
+          {description}
+        </p>
       </div>
     </button>
   );
